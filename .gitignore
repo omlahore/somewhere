@@ -1,0 +1,11 @@
+# unusable game-mod "font" (bitmap atlas, not web font)
+1778301999_EVA-Matisse_Classic_Font__JP_/
+*.zip
+
+# unused now that the film is a frame sequence
+scrub.mp4
+poster.jpg
+
+# local dev only (range server + launch config)
+serve.py
+.claude/

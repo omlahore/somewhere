@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Om Lahore — liminal</title>
+<meta name="description" content="Om Lahore · full-stack & web developer. Step through the door." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* Hallmark · macrostructure: bespoke scroll-cinematic · genre: atmospheric
+ * theme: custom "liminal dreamcore / VHS" · paper oklch(12% .03 285) · accent magenta+cyan · display Instrument Serif (roman)
+ * tone: surreal · liminal · Kane-Parsons · pre-emit critique: P5 H4 E5 S4 R4 V5 */
+
+:root{
+  /* palette */
+  --void:      oklch(12% 0.03 285);
+  --void-2:    oklch(16% 0.035 285);
+  --bone:      oklch(96% 0.02 95);
+  --mist:      oklch(74% 0.03 250);
+  --cyan:      oklch(85% 0.13 205);
+  --magenta:   oklch(72% 0.24 350);
+  --lime:      oklch(90% 0.19 135);
+  --cyan-t:    oklch(85% 0.13 205 / 0.75);
+  --magenta-t: oklch(72% 0.24 350 / 0.75);
+  --glass:     oklch(96% 0.02 95 / 0.08);
+  --hair:      oklch(96% 0.02 95 / 0.16);
+
+  /* type */
+  --font-display: 'Rozha One', 'Times New Roman', serif;
+  --font-ui: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --text-hero: clamp(3.5rem, 15vw, 13rem);
+  --text-xl:   clamp(2rem, 6vw, 4.5rem);
+  --text-lg:   clamp(1.5rem, 3.5vw, 2.75rem);
+  --text-md:   clamp(1.05rem, 2vw, 1.5rem);
+  --text-sm:   clamp(0.8rem, 1.4vw, 0.95rem);
+  --text-xs:   0.72rem;
+
+  /* space (4pt) */
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s6:24px; --s8:32px; --s12:48px; --s16:64px; --s24:96px; --s32:128px;
+
+  /* motion */
+  --ease-out: cubic-bezier(.16,1,.3,1);
+  --ease-in:  cubic-bezier(.7,0,.84,0);
+  --ease-in-out: cubic-bezier(.65,0,.35,1);
+
+  /* live, driven by JS */
+  --split: 0px;       /* chromatic aberration offset */
+  --shake-x: 0px; --shake-y: 0px;
+  --glitch: 0;        /* 0..1 velocity */
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+html, body{ overflow-x:clip; background:var(--void); color:var(--bone); }
+html{ scroll-behavior:auto; }
+body{
+  font-family:var(--font-ui);
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+@media (pointer:coarse){ body{ cursor:auto; } }
+a{ color:inherit; }
+img,video{ display:block; max-width:100%; }
+
+::selection{ background:var(--magenta); color:var(--void); }
+
+/* ---------- top chrome ---------- */
+#bar{
+  position:fixed; inset:0 0 auto 0; z-index:60;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:var(--s4) clamp(var(--s4), 4vw, var(--s12));
+  mix-blend-mode:difference; pointer-events:none;
+}
+#bar .brand{ font-family:var(--font-display); font-size:1.4rem; letter-spacing:.02em; }
+#bar .brand b{ color:var(--magenta); font-family:var(--font-ui); font-weight:700; }
+#bar nav{ display:flex; gap:var(--s6); align-items:center; pointer-events:auto; }
+#bar nav a{
+  font-size:var(--text-sm); text-transform:uppercase; letter-spacing:.18em;
+  text-decoration:none; opacity:.85; white-space:nowrap;
+  transition:opacity .25s var(--ease-out), color .25s var(--ease-out);
+}
+#bar nav a:hover{ opacity:1; color:var(--cyan); }
+#bar nav a:focus-visible{ outline:2px solid var(--cyan); outline-offset:4px; opacity:1; }
+@media (max-width:560px){ #bar nav a.hide-sm{ display:none; } }
+
+/* ---------- film stage ---------- */
+#scrollzone{ position:relative; height:640vh; }
+#film{
+  position:sticky; top:0; height:100vh; height:100svh;
+  overflow:hidden; background:var(--void);
+  z-index:1;
+}
+#shake{
+  position:absolute; inset:-4% ; width:108%; height:108%;
+  transform:translate3d(var(--shake-x), var(--shake-y), 0);
+  will-change:transform;
+}
+#cv{
+  position:absolute; inset:0; width:100%; height:100%;
+  filter:contrast(1.06) saturate(1.12) brightness(1.02);
+  background:var(--void);
+}
+/* chromatic ghost of the video on hard scroll */
+#chroma{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    linear-gradient(90deg, var(--magenta-t), transparent 12%),
+    linear-gradient(-90deg, var(--cyan-t), transparent 12%);
+  mix-blend-mode:screen;
+  opacity:calc(var(--glitch) * 0.5);
+  transform:translate3d(var(--split), 0, 0);
+}
+
+/* VHS overlays */
+#scan{
+  position:absolute; inset:0; pointer-events:none; z-index:5;
+  background:repeating-linear-gradient(0deg,
+    oklch(0% 0 0 / 0.16) 0px, oklch(0% 0 0 / 0.16) 1px,
+    transparent 2px, transparent 3px);
+  mix-blend-mode:multiply; opacity:.55;
+}
+#grain{
+  position:absolute; inset:-50%; width:200%; height:200%; pointer-events:none; z-index:6;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.09; mix-blend-mode:overlay; animation:grain .5s steps(4) infinite;
+}
+@keyframes grain{
+  0%{transform:translate(0,0)} 25%{transform:translate(-4%,3%)}
+  50%{transform:translate(3%,-4%)} 75%{transform:translate(-3%,-3%)} 100%{transform:translate(4%,4%)}
+}
+#vig{
+  position:absolute; inset:0; pointer-events:none; z-index:7;
+  background:radial-gradient(120% 100% at 50% 45%, transparent 52%, oklch(0% 0 0 / 0.55) 100%);
+}
+#track{
+  position:absolute; left:0; right:0; height:22vh; pointer-events:none; z-index:6;
+  background:linear-gradient(transparent, oklch(96% 0.02 95 / 0.06), transparent);
+  filter:blur(1px); animation:track 7s linear infinite;
+}
+@keyframes track{ 0%{top:-25vh} 100%{top:110vh} }
+
+/* ---------- text beats ---------- */
+#beats{ position:absolute; inset:0; z-index:10; pointer-events:none; }
+.beat{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:min(92vw, 1100px);
+  text-align:center; will-change:transform,opacity; opacity:0;
+}
+.beat.tl{ text-align:left; } .beat.tr{ text-align:right; }
+.beat.side{ width:min(42vw, 460px); }
+.beat::before{ /* soft dark halo so text survives bright video */
+  content:''; position:absolute; inset:-16% -12%; z-index:-1; pointer-events:none;
+  background:radial-gradient(closest-side, oklch(0% 0 0 / 0.55), transparent 80%);
+  filter:blur(24px);
+}
+@media (max-width:720px){ .beat.side{ width:82vw; } }
+.chromatic{
+  text-shadow:
+    calc(var(--split) * -1) 0 var(--magenta-t),
+    var(--split) 0 var(--cyan-t);
+}
+.hero-name{
+  font-family:var(--font-display); font-weight:400; font-style:normal;
+  font-size:var(--text-hero); line-height:.84; letter-spacing:-.02em;
+  display:inline-block; transform:scaleX(0.9); transform-origin:center; /* Eva-style condense */
+}
+.hero-sub{
+  margin-top:var(--s6); font-size:var(--text-md); color:var(--mist);
+  text-transform:uppercase; letter-spacing:.34em; font-weight:500;
+}
+.hint{
+  margin-top:var(--s12); font-size:var(--text-sm); letter-spacing:.28em;
+  text-transform:uppercase; color:var(--bone); opacity:.7;
+}
+.hint span{ display:inline-block; animation:bob 2.2s var(--ease-in-out) infinite; }
+@keyframes bob{ 50%{ transform:translateY(8px) } }
+
+.line{ font-family:var(--font-display); font-size:var(--text-xl); line-height:1.02; font-style:normal; }
+.line em{ font-style:normal; color:var(--magenta); }
+
+.whisper{ font-family:var(--font-ui); font-size:var(--text-md); letter-spacing:.14em; color:var(--bone); text-transform:lowercase; font-weight:500; }
+.whisper.big{ font-size:var(--text-lg); letter-spacing:.2em; }
+
+/* loading gate */
+#loader{ position:fixed; inset:0; z-index:100; background:var(--void); display:grid; place-items:center; transition:opacity .8s var(--ease-out), visibility .8s; }
+#loader.done{ opacity:0; visibility:hidden; pointer-events:none; }
+#loader .lwrap{ width:min(80vw,420px); text-align:center; }
+#loader .ltitle{ font-family:var(--font-display); font-size:var(--text-xl); letter-spacing:.02em; }
+#loader .ltrack{ margin:var(--s6) 0 var(--s3); height:2px; background:var(--hair); overflow:hidden; }
+#loader #lbar{ height:100%; width:0; background:linear-gradient(90deg,var(--cyan),var(--magenta)); transition:width .2s var(--ease-out); }
+#loader .lsub{ font-size:var(--text-xs); letter-spacing:.34em; text-transform:uppercase; color:var(--mist); }
+
+.kicker{
+  font-size:var(--text-xs); letter-spacing:.34em; text-transform:uppercase;
+  color:var(--cyan); font-weight:600; margin-bottom:var(--s3);
+}
+.proj .name{ font-family:var(--font-display); font-size:var(--text-lg); line-height:1; font-style:normal; }
+.proj .meta{ margin-top:var(--s3); font-size:var(--text-sm); letter-spacing:.12em; color:var(--mist); text-transform:uppercase; }
+.proj .desc{ margin-top:var(--s2); font-size:var(--text-md); color:var(--bone); opacity:.9; max-width:36ch; }
+.beat.tr .proj .desc{ margin-left:auto; }
+
+.creds{ font-size:var(--text-md); letter-spacing:.14em; text-transform:uppercase; color:var(--mist); line-height:2; }
+.creds b{ color:var(--bone); font-weight:600; }
+
+.skills{ display:flex; flex-wrap:wrap; gap:var(--s3) var(--s4); justify-content:center; max-width:900px; margin:0 auto; }
+.skills span{
+  font-size:var(--text-md); font-family:var(--font-display); font-style:normal;
+  color:var(--bone); opacity:.9;
+}
+.skills span::after{ content:'·'; margin-left:var(--s4); color:var(--cyan); }
+.skills span:last-child::after{ content:''; }
+
+/* ---------- grounded end section ---------- */
+#end{
+  position:relative; z-index:2; background:var(--void);
+  padding:clamp(var(--s16), 12vh, var(--s32)) clamp(var(--s4), 6vw, var(--s24)) var(--s16);
+  border-top:1px solid var(--hair);
+}
+#end::before{ /* faint continued grain */
+  content:''; position:absolute; inset:0; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#end > *{ position:relative; }
+.end-head{ max-width:1100px; margin:0 auto var(--s16); }
+.end-head .kicker{ margin-bottom:var(--s4); }
+.end-head h2{
+  font-family:var(--font-display); font-weight:400; font-style:normal;
+  font-size:var(--text-hero); line-height:.9; letter-spacing:-.01em;
+  overflow-wrap:anywhere;
+}
+.end-head p{ margin-top:var(--s6); max-width:52ch; font-size:var(--text-md); color:var(--mist); line-height:1.6; }
+
+.work{
+  max-width:1100px; margin:0 auto var(--s24);
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap:var(--s4);
+}
+.card{
+  display:flex; flex-direction:column; gap:var(--s3);
+  padding:var(--s8) var(--s6); text-decoration:none;
+  border:1px solid var(--hair); background:var(--void-2);
+  transition:transform .4s var(--ease-out), border-color .4s var(--ease-out), background .4s var(--ease-out);
+  min-height:180px;
+}
+.card:hover{ transform:translateY(-6px); border-color:var(--magenta); background:oklch(18% 0.05 320); }
+.card:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+.card .cnum{ font-size:var(--text-xs); letter-spacing:.2em; color:var(--cyan); }
+.card .cname{ font-family:var(--font-display); font-style:normal; font-size:var(--text-lg); line-height:1; margin-top:auto; }
+.card .cstack{ font-size:var(--text-xs); letter-spacing:.14em; text-transform:uppercase; color:var(--mist); }
+.card .cdesc{ font-size:var(--text-sm); color:var(--bone); opacity:.82; line-height:1.5; }
+.card .go{ font-size:var(--text-xs); letter-spacing:.2em; text-transform:uppercase; color:var(--magenta); opacity:0; transition:opacity .3s var(--ease-out); }
+.card:hover .go, .card:focus-visible .go{ opacity:1; }
+
+.contact{
+  max-width:1100px; margin:0 auto; padding-top:var(--s16); border-top:1px solid var(--hair);
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%,220px),1fr)); gap:var(--s8) var(--s6);
+}
+.contact .col h3{ font-size:var(--text-xs); letter-spacing:.3em; text-transform:uppercase; color:var(--mist); margin-bottom:var(--s4); font-weight:600; }
+.contact a, .contact .txt{
+  display:inline-block; font-family:var(--font-display); font-style:normal; font-size:var(--text-lg); line-height:1.15;
+  text-decoration:none; color:var(--bone);
+}
+.contact a{ position:relative; transition:color .25s var(--ease-out); }
+.contact a::after{ content:''; position:absolute; left:0; bottom:2px; height:2px; width:0; background:var(--magenta); transition:width .3s var(--ease-out); }
+.contact a:hover{ color:var(--magenta); }
+.contact a:hover::after{ width:100%; }
+.contact a:focus-visible{ outline:2px solid var(--cyan); outline-offset:4px; }
+
+footer{
+  max-width:1100px; margin:var(--s24) auto 0; padding-top:var(--s8); border-top:1px solid var(--hair);
+  display:flex; flex-wrap:wrap; gap:var(--s4); justify-content:space-between;
+  font-size:var(--text-xs); letter-spacing:.16em; text-transform:uppercase; color:var(--mist);
+}
+
+/* ---------- cursor ---------- */
+#cur, #curRing{ position:fixed; top:0; left:0; z-index:90; pointer-events:none; border-radius:50%; mix-blend-mode:exclusion; will-change:transform; }
+#cur{ width:10px; height:10px; margin:-5px 0 0 -5px; background:var(--bone); }
+#curRing{ width:40px; height:40px; margin:-20px 0 0 -20px; border:1.5px solid var(--cyan); box-shadow:0 0 18px var(--magenta-t); transition:width .2s var(--ease-out), height .2s var(--ease-out); }
+#curRing.hot{ width:64px; height:64px; margin:-32px 0 0 -32px; border-color:var(--magenta); }
+@media (pointer:coarse){ #cur,#curRing{ display:none; } }
+
+/* ---------- sound ---------- */
+#snd{
+  position:fixed; right:clamp(var(--s4),4vw,var(--s12)); bottom:clamp(var(--s4),4vw,var(--s12)); z-index:70;
+  display:flex; align-items:center; gap:var(--s3);
+  padding:var(--s3) var(--s4); border:1px solid var(--hair); background:oklch(12% 0.03 285 / 0.6);
+  backdrop-filter:blur(6px); color:var(--bone); cursor:none;
+  font-family:var(--font-ui); font-size:var(--text-xs); letter-spacing:.2em; text-transform:uppercase;
+  transition:border-color .3s var(--ease-out); white-space:nowrap;
+}
+@media (pointer:coarse){ #snd{ cursor:pointer; } }
+#snd:hover{ border-color:var(--cyan); }
+#snd:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+#snd .eq{ display:flex; gap:2px; align-items:flex-end; height:14px; }
+#snd .eq i{ width:2px; background:var(--cyan); height:4px; }
+#snd.on .eq i{ animation:eq .9s var(--ease-in-out) infinite; }
+#snd.on .eq i:nth-child(2){ animation-delay:.15s } #snd.on .eq i:nth-child(3){ animation-delay:.3s } #snd.on .eq i:nth-child(4){ animation-delay:.45s }
+@keyframes eq{ 50%{ height:14px } }
+#snd:not(.on) .lbl-on{ display:none; } #snd.on .lbl-off{ display:none; }
+#snd:not(.on){ animation:pulse 2.4s var(--ease-in-out) infinite; }
+@keyframes pulse{ 50%{ border-color:var(--magenta); } }
+
+/* ---------- scroll progress rail ---------- */
+#rail{ position:fixed; left:0; top:0; height:2px; width:0; z-index:80; background:linear-gradient(90deg,var(--cyan),var(--magenta)); box-shadow:0 0 12px var(--magenta); }
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce){
+  #grain, #track, .hint span, #snd, #snd.on .eq i{ animation:none !important; }
+  #shake{ transform:none !important; }
+  .chromatic{ text-shadow:none; }
+  *{ scroll-behavior:auto; }
+}
+
+/* tighten beats on small screens */
+@media (max-width:640px){
+  .proj .desc{ font-size:var(--text-sm); }
+  .creds{ font-size:var(--text-sm); line-height:1.9; }
+  #bar{ mix-blend-mode:normal; }
+  .beat{ width:90vw; }
+}
+</style>
+</head>
+<body>
+
+<div id="rail"></div>
+
+<header id="bar">
+  <div class="brand">✦ <b>somewhere</b></div>
+  <nav>
+    <a href="#contact">The exit</a>
+  </nav>
+</header>
+
+<!-- ================= THE FILM ================= -->
+<div id="scrollzone">
+  <div id="film">
+    <div id="shake">
+      <canvas id="cv"></canvas>
+      <div id="chroma"></div>
+    </div>
+    <div id="track"></div>
+    <div id="scan"></div>
+    <div id="grain"></div>
+    <div id="vig"></div>
+
+    <div id="beats">
+      <!-- ACT I — the door on the hill -->
+      <div class="beat" data-in="0" data-out="0.13" data-exit="door">
+        <h1 class="hero-name chromatic">SOMEWHERE</h1>
+        <div class="hero-sub">a door, left open, in the hills</div>
+        <div class="hint"><span>scroll to go through ↓</span></div>
+      </div>
+
+      <div class="beat" data-in="0.13" data-out="0.27">
+        <p class="line chromatic">every door here<br>opens onto <em>another</em>.</p>
+      </div>
+
+      <!-- ACT II — through, into the house -->
+      <div class="beat side tl" data-in="0.29" data-out="0.41" data-x="28" data-y="34" data-scramble>
+        <p class="whisper chromatic"><span class="scr">mind the grass —</span></p>
+      </div>
+      <div class="beat side tr" data-in="0.37" data-out="0.49" data-x="72" data-y="64" data-scramble>
+        <p class="whisper chromatic"><span class="scr">yes, it's growing indoors.</span></p>
+      </div>
+      <div class="beat side tl" data-in="0.45" data-out="0.57" data-x="29" data-y="66" data-scramble>
+        <p class="whisper chromatic"><span class="scr">the kettle's still warm.</span></p>
+      </div>
+      <div class="beat" data-in="0.55" data-out="0.68">
+        <p class="line chromatic">you've been here<br>before. <em>haven't</em> you?</p>
+      </div>
+
+      <!-- ACT III — the staircase to the sky -->
+      <div class="beat" data-in="0.70" data-out="0.81">
+        <p class="line chromatic">the stairs only go <em>up</em>.</p>
+      </div>
+      <div class="beat" data-in="0.81" data-out="0.91" data-scramble>
+        <p class="whisper big chromatic"><span class="scr">keep climbing —</span></p>
+      </div>
+      <div class="beat" data-in="0.91" data-out="1.0">
+        <p class="line chromatic">the sky is<br>a <em>door</em> too.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= GROUNDED END ================= -->
+<main id="end">
+  <div class="end-head">
+    <div class="kicker">↑ the way out is up</div>
+    <h2>You never<br>really leave<br>a place like this.</h2>
+    <p>A liminal concept — a door in a field, a house full of grass, a staircase into the sky. Made as an experiment in scroll, sound, and half-remembered rooms.</p>
+  </div>
+
+  <div class="contact" id="contact">
+    <div class="col">
+      <h3>Made by</h3>
+      <a href="https://omlahore.com" target="_blank" rel="noopener">Om Lahore ↗</a>
+    </div>
+    <div class="col">
+      <h3>Find me</h3>
+      <a href="https://github.com/omlahore" target="_blank" rel="noopener">GitHub</a><br>
+      <a href="https://www.linkedin.com/in/om-lahorey/" target="_blank" rel="noopener">LinkedIn</a><br>
+      <a href="mailto:omlahorey@gmail.com">Email</a>
+    </div>
+    <div class="col">
+      <h3>Curious?</h3>
+      <a href="Om-Lahore-Resume.pdf" download>See the résumé ↓</a>
+    </div>
+  </div>
+
+  <footer>
+    <span>a liminal concept · 2026</span>
+    <span>built to feel like somewhere ✦</span>
+  </footer>
+</main>
+
+<!-- loading gate -->
+<div id="loader">
+  <div class="lwrap">
+    <div class="ltitle">Somewhere</div>
+    <div class="ltrack"><div id="lbar"></div></div>
+    <div class="lsub">entering the field…</div>
+  </div>
+</div>
+
+<!-- cursor -->
+<div id="cur"></div>
+<div id="curRing"></div>
+
+<!-- sound -->
+<button id="snd" aria-label="Toggle ambient sound">
+  <span class="eq"><i></i><i></i><i></i><i></i></span>
+  <span class="lbl-off">sound off</span>
+  <span class="lbl-on">sound on</span>
+</button>
+
+<script>
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const zone = document.getElementById('scrollzone');
+  const beatsEls = [...document.querySelectorAll('.beat')];
+  const rail = document.getElementById('rail');
+  const root = document.documentElement.style;
+
+  // door screen anchor (approx, in clip 1 the door sits ~ centre, slightly high)
+  const DOOR = { x: 0, y: -6 }; // vh offset from centre for the "sucked through" exit
+
+  const clamp = (v,a,b) => v<a?a:v>b?b:v;
+  const smooth = t => t<=0?0:t>=1?1:t*t*(3-2*t);
+
+  // ---- frame-sequence engine (canvas scrub — no video seeking = smooth) ----
+  const N = 240;
+  const cv = document.getElementById('cv');
+  const ctx = cv.getContext('2d', { alpha:false });
+  const loaderEl = document.getElementById('loader');
+  const lbar = document.getElementById('lbar');
+  const imgs = new Array(N);
+  let loaded = 0, ready = false, lastDrawn = -1;
+  let targetFrame = 0, curFrame = 0;
+
+  function resizeCanvas(){
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    cv.width = Math.round(cv.clientWidth * dpr);
+    cv.height = Math.round(cv.clientHeight * dpr);
+    lastDrawn = -1; // force redraw at new size
+    drawFrame(curFrame|0);
+  }
+  function drawFrame(idx){
+    idx = clamp(idx|0, 0, N-1);
+    const im = imgs[idx];
+    if (!im || !im.complete || !im.naturalWidth){ return; }
+    if (idx === lastDrawn) return;
+    lastDrawn = idx;
+    const W = cv.width, H = cv.height, iw = im.naturalWidth, ih = im.naturalHeight;
+    const s = Math.max(W/iw, H/ih), dw = iw*s, dh = ih*s;
+    ctx.drawImage(im, (W-dw)/2, (H-dh)/2, dw, dh);
+  }
+  const PAD = n => String(n).padStart(3,'0');
+  (function preload(){
+    for (let i=0;i<N;i++){
+      const im = new Image();
+      im.onload = im.onerror = () => {
+        loaded++;
+        if (lbar) lbar.style.width = (loaded/N*100).toFixed(0) + '%';
+        if (loaded === N && !ready){ ready = true; resizeCanvas(); loaderEl.classList.add('done'); }
+      };
+      im.src = 'frames/f' + PAD(i+1) + '.jpg';
+      imgs[i] = im;
+    }
+  })();
+  window.addEventListener('resize', resizeCanvas);
+
+  // ---- scramble setup ----
+  const GLYPHS = '█▓▒░/\\<>*#@%&+=?01';
+  document.querySelectorAll('[data-scramble] .scr').forEach(el => {
+    el.dataset.final = el.textContent;
+  });
+  const scrambleState = new WeakMap();
+  function scramble(beat){
+    if (reduce) return;
+    beat.querySelectorAll('[data-final]').forEach(el => {
+      const final = el.dataset.final;
+      let frame = 0;
+      const total = 16 + Math.floor(final.length * 0.6);
+      clearInterval(scrambleState.get(el));
+      const id = setInterval(() => {
+        frame++;
+        const reveal = Math.floor((frame/total) * final.length);
+        let out = '';
+        for (let i=0;i<final.length;i++){
+          out += i < reveal ? final[i] : (final[i]===' '?' ':GLYPHS[(Math.random()*GLYPHS.length)|0]);
+        }
+        el.textContent = out;
+        if (frame >= total){ el.textContent = final; clearInterval(id); }
+      }, 26);
+      scrambleState.set(el, id);
+    });
+  }
+
+  // ---- main scroll loop ----
+  let p = 0, lastP = 0, vel = 0;
+  const activated = new Set();
+
+  function readProgress(){
+    const total = zone.offsetHeight - window.innerHeight;
+    p = clamp(-zone.getBoundingClientRect().top / total, 0, 1);
+  }
+  window.addEventListener('scroll', readProgress, { passive:true });
+  window.addEventListener('resize', readProgress);
+  readProgress();
+
+  function frame(){
+    // velocity (smoothed)
+    const dp = Math.abs(p - lastP);
+    vel += (dp - vel) * 0.2;
+    lastP = p;
+    const v = Math.min(vel * 60, 1); // 0..1 normalised
+    root.setProperty('--glitch', v.toFixed(3));
+
+    // frame scrub (lerp the frame index → smooth even on jumpy scroll)
+    if (ready){
+      targetFrame = p * (N - 1);
+      curFrame += (targetFrame - curFrame) * 0.18;
+      drawFrame(Math.round(curFrame));
+    }
+
+    // chromatic + shake from velocity
+    if (!reduce){
+      const split = (v * 7).toFixed(2);
+      root.setProperty('--split', split + 'px');
+      const s = v * 9;
+      root.setProperty('--shake-x', ((Math.random()-.5)*s).toFixed(2) + 'px');
+      root.setProperty('--shake-y', ((Math.random()-.5)*s).toFixed(2) + 'px');
+    }
+
+    // rail
+    rail.style.width = (p * 100).toFixed(2) + '%';
+
+    // beats
+    for (const b of beatsEls){
+      const bin = +b.dataset.in, bout = +b.dataset.out;
+      const t = (p - bin) / (bout - bin);
+      if (t < -0.05 || t > 1.05){ if (b.style.opacity !== '0') b.style.opacity = '0'; continue; }
+
+      // trigger scramble on entry
+      if (b.hasAttribute('data-scramble') && t > 0.02 && !activated.has(b)){ activated.add(b); scramble(b); }
+      if (t < -0.02 && activated.has(b)) activated.delete(b);
+
+      let op, ty = 0, sc = 1, tx = 0;
+      const inZone = 0.22, outZone = 0.78;
+      const noEntry = bin <= 0; // hero: fully lit at rest, only fades on exit
+      if (noEntry && t < outZone){ op = 1; }
+      else if (t < inZone){ op = smooth(t / inZone); ty = (1-op) * 34; }
+      else if (t > outZone){
+        const e = (t - outZone) / (1 - outZone);
+        op = 1 - smooth(e);
+        if (b.dataset.exit === 'door'){ // sucked through the doorway
+          sc = 1 - e * 0.55; ty = DOOR.y * e * (window.innerHeight/100); op = 1 - smooth(e);
+        } else { ty = -e * 34; }
+      } else { op = 1; }
+
+      // custom anchor (project pop-ups off-centre; centre on narrow screens)
+      if (b.dataset.x){
+        b.style.left = (window.innerWidth <= 720 ? 50 : +b.dataset.x) + '%';
+        b.style.top = b.dataset.y + '%';
+      }
+      b.style.opacity = op.toFixed(3);
+      const baseX = b.dataset.x ? '-50%' : '-50%';
+      b.style.transform = `translate(${baseX}, calc(-50% + ${ty}px)) scale(${sc.toFixed(3)})`;
+    }
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ---- custom cursor ----
+  if (!matchMedia('(pointer:coarse)').matches){
+    const cur = document.getElementById('cur'), ring = document.getElementById('curRing');
+    let mx=innerWidth/2, my=innerHeight/2, rx=mx, ry=my;
+    addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; cur.style.transform=`translate(${mx}px,${my}px)`; });
+    document.querySelectorAll('a,button').forEach(el => {
+      el.addEventListener('mouseenter', ()=>ring.classList.add('hot'));
+      el.addEventListener('mouseleave', ()=>ring.classList.remove('hot'));
+    });
+    (function ring_loop(){ rx+=(mx-rx)*0.18; ry+=(my-ry)*0.18; ring.style.transform=`translate(${rx}px,${ry}px)`; requestAnimationFrame(ring_loop); })();
+  }
+
+  // ---- ambient VHS drone (WebAudio, no asset) ----
+  const snd = document.getElementById('snd');
+  let ac, master, started=false, on=false;
+  function buildDrone(){
+    ac = new (window.AudioContext||window.webkitAudioContext)();
+    master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
+
+    // detuned low oscillators
+    [55, 55.4, 82.5, 110].forEach((f,i) => {
+      const o = ac.createOscillator(); o.type = i%2? 'sine':'triangle'; o.frequency.value=f;
+      const g = ac.createGain(); g.gain.value = i===3?0.05:0.12;
+      o.connect(g).connect(master); o.start();
+    });
+    // slow filter LFO for movement
+    const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420; lp.Q.value=6;
+    const lfo = ac.createOscillator(); lfo.frequency.value=0.06;
+    const lfoG = ac.createGain(); lfoG.gain.value=180;
+    lfo.connect(lfoG).connect(lp.frequency); lfo.start();
+    // tape hiss (filtered noise)
+    const buf = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate);
+    const d = buf.getChannelData(0);
+    for (let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.5;
+    const noise = ac.createBufferSource(); noise.buffer=buf; noise.loop=true;
+    const ng = ac.createGain(); ng.gain.value=0.02;
+    noise.connect(lp); lp.connect(master); noise.connect(ng).connect(master); noise.start();
+    started=true;
+  }
+  on = true;                       // sound ON by default (intent)
+  snd.classList.add('on');
+  function apply(){
+    if (!started) buildDrone();
+    if (ac.state==='suspended') ac.resume();
+    master.gain.cancelScheduledValues(ac.currentTime);
+    master.gain.linearRampToValueAtTime(on?0.5:0, ac.currentTime + 0.6);
+  }
+  function toggle(e){ if(e) e.stopPropagation(); on = !on; snd.classList.toggle('on', on); apply(); }
+  snd.addEventListener('click', toggle);
+  // browsers block audio until a user gesture — start the drone on the very first one
+  function firstGesture(){
+    if (on) apply();
+    ['pointerdown','keydown','touchstart','wheel'].forEach(ev => window.removeEventListener(ev, firstGesture));
+  }
+  ['pointerdown','keydown','touchstart','wheel'].forEach(ev => window.addEventListener(ev, firstGesture, { passive:true }));
+})();
+</script>
+</body>
+</html>

@@ -78,10 +78,12 @@ img,video{ display:block; max-width:100%; }
   position:fixed; inset:0 0 auto 0; z-index:60;
   display:flex; align-items:center; justify-content:space-between;
   padding:var(--s4) clamp(var(--s4), 4vw, var(--s12));
-  mix-blend-mode:difference; pointer-events:none;
+  pointer-events:none;
+  text-shadow:0 1px 16px oklch(0% 0 0 / 0.6), 0 0 3px oklch(0% 0 0 / 0.5);
 }
-#bar .brand{ font-family:var(--font-display); font-size:1.4rem; letter-spacing:.02em; }
-#bar .brand b{ color:var(--magenta); font-family:var(--font-ui); font-weight:700; }
+#bar .brand{ font-family:var(--font-display); font-size:1.4rem; letter-spacing:.02em; color:var(--bone); }
+#bar .brand .star{ color:var(--magenta); }
+#bar .brand b{ color:var(--bone); font-family:var(--font-ui); font-weight:700; }
 #bar nav{ display:flex; gap:var(--s6); align-items:center; pointer-events:auto; }
 #bar nav a{
   font-size:var(--text-sm); text-transform:uppercase; letter-spacing:.18em;
@@ -337,7 +339,7 @@ footer{
 <div id="rail"></div>
 
 <header id="bar">
-  <div class="brand">✦ <b>somewhere</b></div>
+  <div class="brand"><span class="star">✦</span> <b>somewhere</b></div>
   <nav>
     <a href="#contact">The exit</a>
   </nav>

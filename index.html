@@ -463,7 +463,7 @@ footer{
   const smooth = t => t<=0?0:t>=1?1:t*t*(3-2*t);
 
   // ---- frame-sequence engine (canvas scrub — no video seeking = smooth) ----
-  const N = 481;
+  const N = 1151;
   const cv = document.getElementById('cv');
   const ctx = cv.getContext('2d', { alpha:false });
   const loaderEl = document.getElementById('loader');
@@ -499,7 +499,7 @@ footer{
       if (b && b.complete && b.naturalWidth){ ctx.globalAlpha = frac; drawCover(b); ctx.globalAlpha = 1; }
     }
   }
-  const PAD = n => String(n).padStart(3,'0');
+  const PAD = n => String(n).padStart(4,'0');
   (function preload(){
     for (let i=0;i<N;i++){
       const im = new Image();

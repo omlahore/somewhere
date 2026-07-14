@@ -469,25 +469,35 @@ footer{
   const loaderEl = document.getElementById('loader');
   const lbar = document.getElementById('lbar');
   const imgs = new Array(N);
-  let loaded = 0, ready = false, lastDrawn = -1;
+  let loaded = 0, ready = false, lastF = -1;
   let targetFrame = 0, curFrame = 0;
 
   function resizeCanvas(){
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     cv.width = Math.round(cv.clientWidth * dpr);
     cv.height = Math.round(cv.clientHeight * dpr);
-    lastDrawn = -1; // force redraw at new size
-    drawFrame(curFrame|0);
+    lastF = -1; // force redraw at new size
+    drawFrame(curFrame);
   }
-  function drawFrame(idx){
-    idx = clamp(idx|0, 0, N-1);
-    const im = imgs[idx];
-    if (!im || !im.complete || !im.naturalWidth){ return; }
-    if (idx === lastDrawn) return;
-    lastDrawn = idx;
+  function drawCover(im){
     const W = cv.width, H = cv.height, iw = im.naturalWidth, ih = im.naturalHeight;
     const s = Math.max(W/iw, H/ih), dw = iw*s, dh = ih*s;
     ctx.drawImage(im, (W-dw)/2, (H-dh)/2, dw, dh);
+  }
+  // sub-frame cross-fade: blend frame N with N+1 by the fractional position
+  // → continuous dissolve instead of discrete steps (smooth scrub, no AI frames)
+  function drawFrame(f){
+    f = clamp(f, 0, N-1);
+    if (lastF >= 0 && Math.abs(f - lastF) < 0.004) return;
+    lastF = f;
+    const i0 = Math.floor(f), i1 = Math.min(i0 + 1, N - 1), frac = f - i0;
+    const a = imgs[i0];
+    if (!a || !a.complete || !a.naturalWidth) return;
+    ctx.globalAlpha = 1; drawCover(a);
+    if (frac > 0.02){
+      const b = imgs[i1];
+      if (b && b.complete && b.naturalWidth){ ctx.globalAlpha = frac; drawCover(b); ctx.globalAlpha = 1; }
+    }
   }
   const PAD = n => String(n).padStart(3,'0');
   (function preload(){
@@ -554,8 +564,8 @@ footer{
     // frame scrub (lerp the frame index → smooth even on jumpy scroll)
     if (ready){
       targetFrame = p * (N - 1);
-      curFrame += (targetFrame - curFrame) * 0.18;
-      drawFrame(Math.round(curFrame));
+      curFrame += (targetFrame - curFrame) * 0.16;
+      drawFrame(curFrame);
     }
 
     // chromatic + shake from velocity
@@ -626,24 +636,45 @@ footer{
     ac = new (window.AudioContext||window.webkitAudioContext)();
     master = ac.createGain(); master.gain.value = 0; master.connect(ac.destination);
 
-    // detuned low oscillators
-    [55, 55.4, 82.5, 110].forEach((f,i) => {
-      const o = ac.createOscillator(); o.type = i%2? 'sine':'triangle'; o.frequency.value=f;
-      const g = ac.createGain(); g.gain.value = i===3?0.05:0.12;
+    // low bus with slow "breathing" tremolo (looming swell) + drifting lowpass
+    const bus = ac.createGain(); bus.gain.value = 1;
+    const trem = ac.createGain(); trem.gain.value = 0.85;
+    const tremLfo = ac.createOscillator(); tremLfo.frequency.value = 0.13;
+    const tremDepth = ac.createGain(); tremDepth.gain.value = 0.15;
+    tremLfo.connect(tremDepth).connect(trem.gain); tremLfo.start();
+    const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=360; lp.Q.value=7;
+    const fltLfo = ac.createOscillator(); fltLfo.frequency.value=0.05;
+    const fltD = ac.createGain(); fltD.gain.value=160; fltLfo.connect(fltD).connect(lp.frequency); fltLfo.start();
+    bus.connect(trem).connect(lp).connect(master);
+
+    // sub rumble + dissonant beating pair (78/82.5 ≈ 4.5Hz beat) + tritone unease
+    [{f:40,t:'sine',g:0.14},
+     {f:78,t:'triangle',g:0.09,vib:0.2},   // wavering vibrato
+     {f:82.5,t:'triangle',g:0.09},          // beats against 78 → roughness
+     {f:110,t:'sine',g:0.06}                // tritone-ish vs 78 → unease
+    ].forEach(v => {
+      const o=ac.createOscillator(); o.type=v.t; o.frequency.value=v.f;
+      const g=ac.createGain(); g.gain.value=v.g;
+      if (v.vib){ const vo=ac.createOscillator(); vo.frequency.value=v.vib; const vd=ac.createGain(); vd.gain.value=1.4; vo.connect(vd).connect(o.frequency); vo.start(); }
+      o.connect(g).connect(bus); o.start();
+    });
+
+    // drifting high whines (bypass the lowpass) — the unsettling part
+    [{f:2400,g:0.010,lf:0.05,dep:60},{f:3130,g:0.006,lf:0.037,dep:40}].forEach(w => {
+      const o=ac.createOscillator(); o.type='sine'; o.frequency.value=w.f;
+      const g=ac.createGain(); g.gain.value=w.g;
+      const l=ac.createOscillator(); l.frequency.value=w.lf; const ld=ac.createGain(); ld.gain.value=w.dep;
+      l.connect(ld).connect(o.frequency); l.start();
       o.connect(g).connect(master); o.start();
     });
-    // slow filter LFO for movement
-    const lp = ac.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=420; lp.Q.value=6;
-    const lfo = ac.createOscillator(); lfo.frequency.value=0.06;
-    const lfoG = ac.createGain(); lfoG.gain.value=180;
-    lfo.connect(lfoG).connect(lp.frequency); lfo.start();
-    // tape hiss (filtered noise)
-    const buf = ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*0.5;
-    const noise = ac.createBufferSource(); noise.buffer=buf; noise.loop=true;
-    const ng = ac.createGain(); ng.gain.value=0.02;
-    noise.connect(lp); lp.connect(master); noise.connect(ng).connect(master); noise.start();
+
+    // dark tape hiss
+    const buf=ac.createBuffer(1, ac.sampleRate*2, ac.sampleRate); const d=buf.getChannelData(0);
+    for (let i=0;i<d.length;i++) d[i]=(Math.random()*2-1);
+    const noise=ac.createBufferSource(); noise.buffer=buf; noise.loop=true;
+    const nlp=ac.createBiquadFilter(); nlp.type='lowpass'; nlp.frequency.value=900;
+    const ng=ac.createGain(); ng.gain.value=0.02;
+    noise.connect(nlp).connect(ng).connect(master); noise.start();
     started=true;
   }
   on = true;                       // sound ON by default (intent)

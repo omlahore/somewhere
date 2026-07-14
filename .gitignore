@@ -9,3 +9,5 @@ poster.jpg
 # local dev only (range server + launch config)
 serve.py
 .claude/
+.vercel
+.env*

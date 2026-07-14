@@ -8,7 +8,15 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="preload" href="fonts/matisse-eb.woff2" as="font" type="font/woff2" crossorigin />
 <style>
+/* the real thing — FOT-Matisse V Pro EB (Fontworks), Latin-subset to woff2 */
+@font-face{
+  font-family:'Matisse EB';
+  src:url('fonts/matisse-eb.woff2') format('woff2');
+  font-weight:400 800; font-style:normal; font-display:swap;
+}
+
 /* Hallmark · macrostructure: bespoke scroll-cinematic · genre: atmospheric
  * theme: custom "liminal dreamcore / VHS" · paper oklch(12% .03 285) · accent magenta+cyan · display Instrument Serif (roman)
  * tone: surreal · liminal · Kane-Parsons · pre-emit critique: P5 H4 E5 S4 R4 V5 */
@@ -28,7 +36,7 @@
   --hair:      oklch(96% 0.02 95 / 0.16);
 
   /* type */
-  --font-display: 'Rozha One', 'Times New Roman', serif;
+  --font-display: 'Matisse EB', 'Rozha One', 'Times New Roman', serif;
   --font-ui: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
   --text-hero: clamp(3.5rem, 15vw, 13rem);
   --text-xl:   clamp(2rem, 6vw, 4.5rem);
@@ -389,7 +397,7 @@ footer{
   <div class="end-head">
     <div class="kicker">↑ the way out is up</div>
     <h2>You never<br>really leave<br>a place like this.</h2>
-    <p>A liminal concept — a door in a field, a house full of grass, a staircase into the sky. Made as an experiment in scroll, sound, and half-remembered rooms.</p>
+    <p>Stay as long as you like. The kettle's warm, the door's still open, and part of you never left.</p>
   </div>
 
   <div class="contact" id="contact">

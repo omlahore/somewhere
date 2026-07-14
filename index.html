@@ -38,7 +38,7 @@
   /* type */
   --font-display: 'Matisse EB', 'Rozha One', 'Times New Roman', serif;
   --font-ui: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-  --text-hero: clamp(3.5rem, 15vw, 13rem);
+  --text-hero: clamp(2.5rem, 11.5vw, 11rem);
   --text-xl:   clamp(2rem, 6vw, 4.5rem);
   --text-lg:   clamp(1.5rem, 3.5vw, 2.75rem);
   --text-md:   clamp(1.05rem, 2vw, 1.5rem);
@@ -172,15 +172,18 @@ img,video{ display:block; max-width:100%; }
 .hero-name{
   font-family:var(--font-display); font-weight:400; font-style:normal;
   font-size:var(--text-hero); line-height:.84; letter-spacing:-.02em;
-  display:inline-block; transform:scaleX(0.9); transform-origin:center; /* Eva-style condense */
+  display:inline-block; white-space:nowrap; max-width:100%;
+  transform:scaleX(0.92); transform-origin:center; /* Eva-style condense */
 }
 .hero-sub{
-  margin-top:var(--s6); font-size:var(--text-md); color:var(--mist);
-  text-transform:uppercase; letter-spacing:.34em; font-weight:500;
+  margin-top:var(--s6); font-size:var(--text-md); color:var(--bone);
+  text-transform:uppercase; letter-spacing:.34em; font-weight:600;
+  text-shadow:0 2px 22px oklch(0% 0 0 / 0.75), 0 0 3px oklch(0% 0 0 / 0.6);
 }
 .hint{
   margin-top:var(--s12); font-size:var(--text-sm); letter-spacing:.28em;
-  text-transform:uppercase; color:var(--bone); opacity:.7;
+  text-transform:uppercase; color:var(--bone); opacity:.9;
+  text-shadow:0 2px 18px oklch(0% 0 0 / 0.8), 0 0 3px oklch(0% 0 0 / 0.6);
 }
 .hint span{ display:inline-block; animation:bob 2.2s var(--ease-in-out) infinite; }
 @keyframes bob{ 50%{ transform:translateY(8px) } }
